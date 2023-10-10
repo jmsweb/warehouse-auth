@@ -12,7 +12,7 @@ class Token {
             'alg' => 'HS256',
             'typ' => 'JWT',
             'iss' => 'warehouse-auth',
-            'aud' => 'dorado-pc.attlocal.net'
+            'aud' => $_ENV['COOKIE_DOMAIN']
         ];
         $this->secret = 'SomeSuperSecret';
     }
@@ -79,5 +79,22 @@ class Token {
         );
 
         return ($base64_signature === $signature);
+    }
+
+    public function get_payload(string $jwt): array {
+        $token = explode('.', $jwt);
+        $payload = base64_decode($token[1]);
+        return json_decode($payload, true);
+    }
+
+    public function get_customer_payload(string $jwt): array {
+        $token = explode('.', $jwt);
+        $payload = json_decode(base64_decode($token[1]), true);
+        return [
+            'id' => $payload['id'],
+            'email' => $payload['email'],
+            'name' => $payload['name'],
+            'admin' => $payload['admin']
+        ];
     }
 }

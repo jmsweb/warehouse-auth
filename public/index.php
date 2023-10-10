@@ -10,7 +10,7 @@ use App\Service\Token;
 use Slim\Routing\RouteCollectorProxy;
 use Symfony\Component\Dotenv\Dotenv;
 
-require '../vendor/autoload.php';
+require __DIR__.'/../vendor/autoload.php';
 
 $dotenv = new Dotenv();
 $dotenv->load(__DIR__ . '/../.env');

@@ -50,13 +50,17 @@ class AuthenticateController {
                     'iss' => 'warehouse-auth',
                     'aud' => $_ENV['COOKIE_DOMAIN'],
                     'name' => "{$customer->getFirstName()} {$customer->getLastName()}",
+                    'admin' => $customer->getIsAdmin(),
                     'email' => $customer->getEmail(),
-                    'customer_id' => $customer->getId()
+                    'id' => $customer->getId(),
                 ]);
+
+                $payload = $this->container->get('token')->get_customer_payload($jwt);
 
                 $response->getBody()->write(json_encode([
                     'success' => true,
-                    'jwt' => $jwt
+                    'jwt' => $jwt,
+                    'payload' => $payload
                 ]));
 
                 return $response->withStatus(201);

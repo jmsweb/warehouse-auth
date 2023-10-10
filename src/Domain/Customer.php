@@ -26,6 +26,9 @@ class Customer {
     #[Column(name: 'last_name', type: 'string')]
     public string $lastName;
 
+    #[Column(name: 'is_admin', type: 'boolean')]
+    public bool $isAdmin;
+
     #[Column(name: 'date_create', type: 'datetime')]
     protected DateTime $createDate;
 
@@ -73,6 +76,14 @@ class Customer {
 
     public function setLastName(string $lastName): void {
         $this->lastName = $lastName;
+    }
+
+    public function getIsAdmin(): bool {
+        return $this->isAdmin;
+    }
+
+    public function setIsAdmin(bool $isAdmin): void {
+        $this->isAdmin = $isAdmin;
     }
 
     public function getCreateDate(): DateTime {

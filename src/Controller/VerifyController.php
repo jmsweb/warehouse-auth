@@ -2,9 +2,7 @@
 
 namespace App\Controller;
 
-use App\Domain\Customer;
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Exception\NotSupported;
 use Psr\Container\ContainerExceptionInterface;
 use Psr\Container\ContainerInterface;
 use Psr\Container\NotFoundExceptionInterface;
@@ -32,8 +30,19 @@ class VerifyController {
      */
     function __invoke(Request $request, Response $response, array $args): Response {
 
+        $jwt = json_decode($request->getBody());
+
+        if (!$this->container->get('token')->is_valid($jwt)) {
+            $response->getBody()->write(json_encode(['success' => false]));
+            return $response->withStatus(401);
+        }
+
+        //$payload = $this->container->get('token')->get_payload($jwt);
+        $payload = $this->container->get('token')->get_customer_payload($jwt);
         $response->getBody()->write(json_encode([
-            'success' => $this->container->get('token')->is_valid(json_decode($request->getBody()))
+            'success' => true,
+            'jwt' => $jwt,
+            'payload' => $payload
         ]));
 
         return $response->withStatus(201);

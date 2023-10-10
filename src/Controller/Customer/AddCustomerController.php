@@ -42,12 +42,13 @@ class AddCustomerController {
             $customer->setId(Uuid::uuid4());
             $customer->setEmail($serverParams['PHP_AUTH_USER']); // dorado@attlocal.net
             $customer->setPassword(password_hash($serverParams['PHP_AUTH_PW'], PASSWORD_BCRYPT)); // 123456
-            $customer->setFirstName($parsedBody['FORM_FIRST_NAME']);
-            $customer->setLastName($parsedBody['FORM_LAST_NAME']);
+            $customer->setFirstName($parsedBody['first_name']);
+            $customer->setLastName($parsedBody['last_name']);
+            $customer->setIsAdmin(filter_var($parsedBody['isAdmin'], FILTER_VALIDATE_BOOLEAN));
             $customer->setCreateDate(new DateTime());
             $this->em->persist($customer);
             $this->em->flush();
-            $response->getBody()->write( json_encode([ 'success' => true, 'user' => $customer ]) );
+            $response->getBody()->write( json_encode([ 'success' => true, 'customer' => $customer ]) );
             return $response->withStatus(201);
         }
 

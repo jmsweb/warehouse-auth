@@ -34,25 +34,43 @@ class AddCustomerController {
     function __invoke(Request $request, Response $response, array $args): Response {
         $serverParams = $request->getServerParams();
         if (
-            array_key_exists('PHP_AUTH_USER', $serverParams) &&
-            array_key_exists('PHP_AUTH_PW', $serverParams)
+            !array_key_exists('PHP_AUTH_USER', $serverParams) ||
+            !array_key_exists('PHP_AUTH_PW', $serverParams)
         ) {
-            $parsedBody = $request->getParsedBody();
-            $customer = new Customer();
-            $customer->setId(Uuid::uuid4());
-            $customer->setEmail($serverParams['PHP_AUTH_USER']); // dorado@attlocal.net
-            $customer->setPassword(password_hash($serverParams['PHP_AUTH_PW'], PASSWORD_BCRYPT)); // 123456
-            $customer->setFirstName($parsedBody['first_name']);
-            $customer->setLastName($parsedBody['last_name']);
-            $customer->setIsAdmin(filter_var($parsedBody['isAdmin'], FILTER_VALIDATE_BOOLEAN));
-            $customer->setCreateDate(new DateTime());
-            $this->em->persist($customer);
-            $this->em->flush();
-            $response->getBody()->write( json_encode([ 'success' => true, 'customer' => $customer ]) );
+            $response->getBody()->write( json_encode([
+                'success' => false
+            ]));
             return $response->withStatus(201);
         }
 
-        $response->getBody()->write( json_encode([ 'success' => false ]) );
+        $data = json_decode($request->getBody());
+        $customer = $this->em->getRepository(Customer::class)->findOneBy([
+            'email' => $serverParams['PHP_AUTH_USER']
+        ]);
+
+        if ($customer) {
+            $response->getBody()->write(json_encode([
+                'success' => false,
+                'message' => "Integrity constraint violation: duplicate email ({$serverParams['PHP_AUTH_USER']}) found."
+            ]));
+            return $response->withStatus(201);
+        }
+
+        $customer = new Customer();
+        $customer->setId(Uuid::uuid4());
+        $customer->setEmail($serverParams['PHP_AUTH_USER']); // dorado@attlocal.net
+        $customer->setPassword(password_hash($serverParams['PHP_AUTH_PW'], PASSWORD_BCRYPT)); // 123456
+        $customer->setFirstName($data->first_name);
+        $customer->setLastName($data->last_name);
+        $customer->setIsAdmin(filter_var($data->isAdmin, FILTER_VALIDATE_BOOLEAN));
+        $customer->setCreateDate(new DateTime());
+        $this->em->persist($customer);
+        $this->em->flush();
+        $response->getBody()->write( json_encode([
+            'success' => true,
+            'message' => "Added {$serverParams['PHP_AUTH_USER']} - $customer->firstName $customer->lastName (".($customer->isAdmin ? 'Admin' : 'Customer').")"
+        ]));
+        // <b>Added</b> {customer.email} - {customer.firstName} {customer.lastName} ({customer.isAdmin ? 'Admin': 'Customer'})
         return $response->withStatus(201);
     }
 }

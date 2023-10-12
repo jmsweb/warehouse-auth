@@ -41,7 +41,6 @@ class VerifyController {
         $payload = $this->container->get('token')->get_customer_payload($jwt);
         $response->getBody()->write(json_encode([
             'success' => true,
-            'jwt' => $jwt,
             'payload' => $payload
         ]));
 

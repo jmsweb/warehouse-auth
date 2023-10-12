@@ -64,15 +64,8 @@ $app->add(function ($request, $handler) {
 
 // AUTH LOGIN TO GET TOKEN
 $app->map(['POST'], '[/]', App\Controller\AuthenticateController::class);
-
-// VERIFY TOKEN
 $app->map(['POST'], '/verify', App\Controller\VerifyController::class);
-
-// GET TOKEN
-// $app->map(['POST'], '/token', App\Controller\Auth\Generate::class);
-
-// RESET TOKEN
-// $app->map(['POST'], '/reset', App\Controller\Auth\Reset::class);
+$app->map(['POST'], '/extend', App\Controller\ExtendController::class);
 
 $app->group('/customer', function(RouteCollectorProxy $group) {
     $group->map(['GET'], '[/[{uuid}]]', App\Controller\Customer\GetCustomerController::class);

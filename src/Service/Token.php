@@ -14,7 +14,7 @@ class Token {
             'iss' => 'warehouse-auth',
             'aud' => $_ENV['COOKIE_DOMAIN']
         ];
-        $this->secret = 'SomeSuperSecret';
+        $this->secret = $_ENV['COOKIE_SECRET'];
     }
 
     public function generate(array $payload): string {
